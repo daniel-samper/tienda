@@ -1,1 +1,1 @@
-# tienda
+# tienda PHP - MySQL
