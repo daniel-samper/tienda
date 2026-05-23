@@ -1,0 +1,67 @@
+services:
+
+  # ─────────────────────────────────────────
+  # Apache + PHP 8.4
+  # ─────────────────────────────────────────
+  web:
+    image: php:8.4-apache
+    container_name: apache_php
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./www:/var/www/html
+    environment:
+      - APACHE_DOCUMENT_ROOT=/var/www/html
+    depends_on:
+      - db
+    networks:
+      - lamp_network
+
+  # ─────────────────────────────────────────
+  # MySQL 9.7
+  # ─────────────────────────────────────────
+  db:
+    image: mysql:9.7
+    container_name: mysql_db
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: mi_base_de_datos
+      MYSQL_USER: usuario
+      MYSQL_PASSWORD: mi_password
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - lamp_network
+
+  # ─────────────────────────────────────────
+  # phpMyAdmin 5.2.3
+  # ─────────────────────────────────────────
+  phpmyadmin:
+    image: phpmyadmin:5.2.3
+    container_name: phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: root_password
+    depends_on:
+      - db
+    networks:
+      - lamp_network
+
+# ─────────────────────────────────────────
+# Volúmenes y red
+# ─────────────────────────────────────────
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  lamp_network:
+    driver: bridge
